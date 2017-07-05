@@ -1,0 +1,11 @@
+{
+  "name": "songhao",
+  "version": "1.0.0",
+  "description": "一个为vue提供的轮播图组件",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "songhao",
+  "license": "ISC"
+}
