@@ -27,6 +27,8 @@ npm install vue-better-slider
 1. 改组件是根据better-scroll滑动组件封装改成
 2. 实现功能有：轮播 自动播放 dots 循环播放，适合手机端
 
+![](https://github.com/songhaoreact/vue-better-slider/blob/master/demo1.gif)
+
 
 
 
