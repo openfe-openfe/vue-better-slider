@@ -1,5 +1,5 @@
 {
-  "name": "songhao",
+  "name": "vue-better-slider",
   "version": "1.0.0",
   "description": "一个为vue提供的轮播图组件",
   "main": "index.js",
