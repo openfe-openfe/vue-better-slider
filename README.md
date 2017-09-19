@@ -28,8 +28,9 @@ components: {
 ```
 demo 
 ```js
-npm install vue-better-slider
+git clone https://github.com/songhaoreact/vue-better-slider.git
 cd vue-better-slier
+npm install 
 npm run dev
 ```
 ## 说明
