@@ -7,17 +7,15 @@
 
 npm install vue-better-slider --save 
 
-在需要的项目文件中导入改组件   import {Slider} from 'vue-better-slider'
-
-1.注册组件
+1.导入并注册组件,注册组件
 ```js
+import {Slider} from 'vue-better-slider'
 components: {
    Slider
 }
 ```
-2.模板
+2.template模板
 ```js
-
   <slider>
       <div >
         <a href="">
@@ -26,7 +24,8 @@ components: {
       </div>
   </slider> 
 ```
-demo 
+## 组件演示demo
+
 ```js
 git clone https://github.com/songhaoreact/vue-better-slider.git
 cd vue-better-slier
