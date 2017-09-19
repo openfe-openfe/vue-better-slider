@@ -1,5 +1,4 @@
 .DS_Store
 node_modules/
 npm-debug.log*
-/wc-messagebox
-/static
+/vue-better-slider
