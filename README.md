@@ -7,7 +7,7 @@
 
 npm install vue-better-slider --save 
 
-在需要的项目文件中导入改组件 import Slider from 'vue-better-slider'
+在需要的项目文件中导入改组件   import {Slider} from 'vue-better-slider'
 
 1.注册组件
 ```js
