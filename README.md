@@ -32,6 +32,11 @@ cd vue-better-slier
 npm install 
 npm run dev
 ```
+
+## 效果图
+
+![image](https://github.com/songhaoreact/vue-better-slider/blob/master/demo.gif)
+
 ## 说明
 
 1. 改组件是根据better-scroll滑动组件封装改成
