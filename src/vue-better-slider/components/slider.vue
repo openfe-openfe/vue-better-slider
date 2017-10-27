@@ -53,6 +53,10 @@ export default {
   },
   mounted() {
     this.initialize();
+    // 监听 resize事件,改变窗口重新初始化
+    window.addEventListener('resize', () => {
+        this.initialize();
+    })
   },
   destroyed() {
     clearTimeout(this.timer);
@@ -80,7 +84,6 @@ export default {
   },
   methods: {
     initialize() {
-      // reset offset when children changes
       clearTimeout(this.timer);
       this.width = this.$el.getBoundingClientRect().width;
       this.active = 0;
@@ -167,6 +170,10 @@ export default {
 </script>
 
 <style>
+  body{
+    margin:0px;
+    padding:0px;
+  }
   .ic-slider {
     overflow: hidden;
     position: relative;
