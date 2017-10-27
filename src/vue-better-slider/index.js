@@ -1,6 +1,7 @@
 import Vue from 'vue'
-import Slider from './components/slider'
-
-export{
-	Slider
+import IcSlider from './components/slider'
+import IcSliderItem from './components/slider-item'
+export {
+	IcSlider,
+	IcSliderItem
 }

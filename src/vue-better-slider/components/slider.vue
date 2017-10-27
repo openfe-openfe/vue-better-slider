@@ -1,219 +1,210 @@
 <template>
-  <div class="slide" ref="slide">
-    <div class="slide-group" ref="slideGroup">
-      <slot>
-      </slot>
+  <div class="ic-slider">
+    <div 
+      v-if="count > 1"
+      :style="trackStyle"
+      class="ic-slider__track"
+      @touchstart="onTouchStart"
+      @touchmove="onTouchMove"
+      @touchend="onTouchEnd"
+      @touchcancel="onTouchEnd"
+      @transitionend="$emit('change', activeIndicator)"
+    >
+      <slot></slot>
     </div>
-    <div v-if="showDot" class="dots">
-      <span class="dot" :class="{active: currentPageIndex === index }" v-for="(item, index) in dots"></span>
+    <div 
+      v-else
+      class="ic-slider__track"
+    >
+      <slot></slot>
     </div>
-  </div>
+    <div class="ic-slider__indicators" v-if="showIndicators && count > 1">
+      <i v-for="index in count" :class="{ 'ic-slider__indicator--active': index - 1 === activeIndicator }" />
+    </div>
+</div>
 </template>
 
 <script>
-  import { addClass } from '../common/js/dom'
-  import BScroll from 'better-scroll'
-
-  const COMPONENT_NAME = 'slide'
-
-  export default {
-    name: COMPONENT_NAME,
-    props: {
-      loop: {
-        type: Boolean,
-        default: true
-      },
-      autoPlay: {
-        type: Boolean,
-        default: true
-      },
-      interval: {
-        type: Number,
-        default: 4000
-      },
-      showDot: {
-        type: Boolean,
-        default: true
-      },
-      click: {
-        type: Boolean,
-        default: true
-      }
+export default {
+  name: 'ic-slider',
+  props: {
+    autoplay: Number,
+    showIndicators: {
+      type: Boolean,
+      default: true
     },
-    data() {
+    duration: {
+      type: Number,
+      default: 500
+    }
+  },
+  data() {
+    return {
+      width: 0,
+      offset: 0,
+      startX: 0,
+      startY: 0,
+      active: 0,
+      deltaX: 0,
+      swipes: [],
+      direction: '',
+      currentDuration: 0
+    };
+  },
+  mounted() {
+    this.initialize();
+  },
+  destroyed() {
+    clearTimeout(this.timer);
+  },
+  watch: {
+    swipes() {
+      this.initialize();
+    }
+  },
+  computed: {
+    count() {
+      return this.swipes.length;
+    },
+    trackStyle() {
       return {
-        dots: [],
-        currentPageIndex: 0
+        paddingLeft: this.width + 'px',
+        width: (this.count + 2) * this.width + 'px',
+        transitionDuration: `${this.currentDuration}ms`,
+        transform: `translate3d(${this.offset}px, 0, 0)`
+      };
+    },
+    activeIndicator() {
+      return (this.active + this.count) % this.count;
+    }
+  },
+  methods: {
+    initialize() {
+      // reset offset when children changes
+      clearTimeout(this.timer);
+      this.width = this.$el.getBoundingClientRect().width;
+      this.active = 0;
+      this.currentDuration = 0;
+      this.offset = this.count > 1 ? -this.width : 0;
+      this.swipes.forEach(swipe => {
+        swipe.offset = 0;
+      });
+      this.autoPlay();
+    },
+    onTouchStart(event) {
+      clearTimeout(this.timer);
+      this.deltaX = 0;
+      this.direction = '';
+      this.currentDuration = 0;
+      this.startX = event.touches[0].clientX;
+      this.startY = event.touches[0].clientY;
+      if (this.active <= -1) {
+        this.move(this.count);
+      }
+      if (this.active >= this.count) {
+        this.move(-this.count);
       }
     },
-    mounted() {
-      setTimeout(() => {
-        this._setSlideWidth()
-        if (this.showDot) {
-          this._initDots()
-        }
-        this._initSlide()
-
-        if (this.autoPlay) {
-          this._play()
-        }
-      }, 20)
-
-      window.addEventListener('resize', () => {
-        if (!this.slide || !this.slide.enabled) {
-          return
-        }
-        clearTimeout(this.resizeTimer)
-        this.resizeTimer = setTimeout(() => {
-          if (this.slide.isInTransition) {
-            this._onScrollEnd()
-          } else {
-            if (this.autoPlay) {
-              this._play()
-            }
-          }
-          this.refresh()
-        }, 60)
-      })
-    },
-    activated() {
-      if (!this.slide) {
-        return
-      }
-      this.slide.enable()
-      let pageIndex = this.slide.getCurrentPage().pageX
-      if (pageIndex > this.dots.length) {
-        pageIndex = pageIndex % this.dots.length
-      }
-      this.slide.goToPage(pageIndex, 0, 0)
-      if (this.loop) {
-        pageIndex -= 1
-      }
-      this.currentPageIndex = pageIndex
-      if (this.autoPlay) {
-        this._play()
+    onTouchMove(event) {
+      this.direction = this.direction || this.getDirection(event.touches[0]);
+      if (this.direction === 'horizontal') {
+        event.preventDefault();
+        this.deltaX = event.touches[0].clientX - this.startX;
+        this.move(0, this.range(this.deltaX, [-this.width, this.width]));
       }
     },
-    deactivated() {
-      this.slide.disable()
-      clearTimeout(this.timer)
+    onTouchEnd() {
+      if (this.deltaX) {
+        this.move(Math.abs(this.deltaX) > 50 ? (this.deltaX > 0 ? -1 : 1) : 0);
+        this.currentDuration = this.duration;
+      }
+      this.autoPlay();
     },
-    beforeDestroy() {
-      this.slide.disable()
-      clearTimeout(this.timer)
+    move(move = 0, offset = 0) {
+      const { active, count, swipes, deltaX, width } = this;
+      if (move) {
+        if (active === -1) {
+          swipes[count - 1].offset = 0;
+        }
+        swipes[0].offset = active === count - 1 && move > 0 ? count * width : 0;
+        this.active += move;
+      } else {
+        if (active === 0) {
+          swipes[count - 1].offset = deltaX > 0 ? -count * width : 0;
+        } else if (active === count - 1) {
+          swipes[0].offset = deltaX < 0 ? count * width : 0;
+        }
+      }
+      this.offset = offset - (this.active + 1) * this.width;
     },
-    methods: {
-      refresh() {
-        this._setSlideWidth(true)
-        this.slide.refresh()
-      },
-      next() {
-        this.slide.next()
-      },
-      _setSlideWidth(isResize) {
-        this.children = this.$refs.slideGroup.children
-
-        let width = 0
-        let slideWidth = this.$refs.slide.clientWidth
-        for (let i = 0; i < this.children.length; i++) {
-          let child = this.children[i]
-          addClass(child, 'slide-item')
-
-          child.style.width = slideWidth + 'px'
-          width += slideWidth
-        }
-        if (this.loop && !isResize) {
-          width += 2 * slideWidth
-        }
-        this.$refs.slideGroup.style.width = width + 'px'
-      },
-      _initSlide() {
-        this.slide = new BScroll(this.$refs.slide, {
-          scrollX: true,
-          momentum: false,
-          snap: {
-            loop: this.loop,
-            threshold: 0.3,
-            speed: 400
-          },
-          click: this.click
-        })
-
-        this.slide.on('scrollEnd', this._onScrollEnd)
-
-        this.slide.on('touchEnd', () => {
-          if (this.autoPlay) {
-            this._play()
-          }
-        })
-
-        this.slide.on('beforeScrollStart', () => {
-          if (this.autoPlay) {
-            clearTimeout(this.timer)
-          }
-        })
-      },
-      _onScrollEnd() {
-        let pageIndex = this.slide.getCurrentPage().pageX
-        if (this.loop) {
-          pageIndex -= 1
-        }
-        this.currentPageIndex = pageIndex
-        if (this.autoPlay) {
-          this._play()
-        }
-      },
-      _initDots() {
-        this.dots = new Array(this.children.length)
-      },
-      _play() {
-        let pageIndex = this.slide.getCurrentPage().pageX + 1
-        clearTimeout(this.timer)
+    autoPlay() {
+      const { autoplay } = this;
+      if (autoplay && this.count > 1) {
+        clearTimeout(this.timer);
         this.timer = setTimeout(() => {
-          this.slide.goToPage(pageIndex, 0, 400)
-        }, this.interval)
+          this.currentDuration = 0;
+          if (this.active >= this.count) {
+            this.move(-this.count);
+          }
+          setTimeout(() => {
+            this.currentDuration = this.duration;
+            this.move(1);
+            this.autoPlay();
+          }, 30);
+        }, autoplay);
       }
+    },
+    getDirection(touch) {
+      const distanceX = Math.abs(touch.clientX - this.startX);
+      const distanceY = Math.abs(touch.clientY - this.startY);
+      return distanceX > distanceY ? 'horizontal' : distanceX < distanceY ? 'vertical' : '';
+    },
+    range(num, arr) {
+      return Math.min(Math.max(num, arr[0]), arr[1]);
     }
   }
+};
 </script>
 
-<style lang="stylus" rel="stylesheet/stylus">
-  .slide
-    min-height: 1px
-    .slide-group
-      position: relative
-      overflow: hidden
-      white-space: nowrap
-      .slide-item
-        float: left
-        box-sizing: border-box
-        overflow: hidden
-        text-align: center
-        a
-          display: block
-          width: 100%
-          overflow: hidden
-          text-decoration: none
-        img
-          display: block
-          width: 100%
-    .dots
-      position: absolute
-      right: 0
-      left: 0
-      bottom: 12px
-      transform: translateZ(1px)
-      text-align: center
-      font-size: 0
-      .dot
-        display: inline-block
-        margin: 0 4px
-        width: 8px
-        height: 8px
-        border-radius: 50%
-        background: #ccc
-        &.active
-          width: 20px
-          border-radius: 5px
-          background: #fff
+<style>
+  .ic-slider {
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+  }
+
+  .ic-slider .ic-slider-item {
+    float: left;
+    height: 100%;
+  }
+  .ic-slider .ic-slider-item img{
+    width:100%;
+  }
+  .ic-slider .ic-slider__track {
+    height: 100%;
+    overflow: hidden;
+  }
+  .ic-slider__indicators {
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: 12px;
+    transform: translateZ(1px);
+    text-align: center;
+    font-size: 0;
+  }
+  .ic-slider__indicators > i {
+    display: inline-block;
+    margin: 0 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+}
+ 
+  .ic-slider__indicators .ic-slider__indicator--active {
+    width: 20px;
+    border-radius: 5px;
+    background: #fff;
+}
 </style>

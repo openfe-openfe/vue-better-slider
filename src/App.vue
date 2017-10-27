@@ -1,26 +1,20 @@
 <template>
-   <div slot="content">
-      <div v-if="items.length" class="slide-wrapper">
-        <div class="slide-content">
-          <slider ref="slide">
-            <div v-for="item in items">
-              <a :href="item.linkUrl">
-                <img :src="item.picUrl">
-              </a>
-            </div>
-          </slider>
+        <div>
+            <ic-slider :autoplay="3000">
+              <ic-slider-item v-for="items in images" :key="items.id">
+                <img :src="items.picUrl"/>
+              </ic-slider-item>
+            </ic-slider>
         </div>
-      </div>
-    </div>
 </template>
 
 <script>
-  import Slider from './vue-better-slider/components/slider'
-
+  import IcSlider from './vue-better-slider/components/slider'
+  import IcSliderItem from './vue-better-slider/components/slider-item'
   export default {
     data() {
       return {
-        items: [
+        images: [
           {
             linkUrl: 'http://y.qq.com/w/album.html?albummid=0044K2vN1sT5mE',
             picUrl: 'http://y.gtimg.cn/music/photo_new/T003R720x288M000001YCZlY3aBifi.jpg',
@@ -50,22 +44,8 @@
       }
     },
     components: {
-      Slider
+      IcSlider,
+      IcSliderItem
     }
   }
 </script>
-
-<style scoped lang="stylus" rel="stylesheet/stylus">
-    .slide-wrapper
-      position: relative
-      width: 100%
-      height: 0
-      padding-top: 40%
-      overflow: hidden
-      .slide-content
-        position: absolute
-        top: 0
-        left: 0
-        width: 100%
-        height: 100%
-</style>
