@@ -76,7 +76,7 @@ npm run dev
 
 ## 效果图
 
-![image](https://github.com/songhaoreact/vue-better-slider/blob/master/demo.gif)
+![image](http://oij04cgoe.bkt.clouddn.com/demo.gif)
 
 ## 说明
 
