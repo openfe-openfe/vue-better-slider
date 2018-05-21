@@ -56,10 +56,6 @@ components: {
           }
         ]
       }
-    },
-    components: {
-      IcSlider,
-      IcSliderItem
     }
   }
 ```
