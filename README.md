@@ -25,8 +25,6 @@ components: {
 ```
 
 ```js
-  import IcSlider from './vue-better-slider/components/slider'
-  import IcSliderItem from './vue-better-slider/components/slider-item'
   export default {
     data() {
       return {
