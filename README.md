@@ -7,8 +7,10 @@
 
 npm install vue-better-slider --save 
 1.main.js引入样式文件
+```js
 import 'vue-better-slider/style.css'
 
+```
 2.导入并注册组件,注册组件
 ```js
 import {IcSlider,IcSliderItem} from 'vue-better-slider'
