@@ -6,12 +6,13 @@
 ## 代码演示如何使用
 
 npm install vue-better-slider --save 
-1.main.js引入样式文件
+
+### 1.main.js引入样式文件
 ```js
 import 'vue-better-slider/style.css'
 
 ```
-2.导入并注册组件,注册组件
+### 2.导入并注册组件,注册组件
 ```js
 import {IcSlider,IcSliderItem} from 'vue-better-slider'
 components: {
@@ -19,7 +20,7 @@ components: {
    IcSliderItem
 }
 ```
-3.template模板
+### 3.template模板
 ```html
    <ic-slider :autoplay="3000">
       <ic-slider-item v-for="(items,index) in images">
